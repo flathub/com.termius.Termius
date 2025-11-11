@@ -59,9 +59,9 @@ modules:
       - type: extra-data
         filename: termius.snap
         only-arches: [x86_64]
-        url: https://api.snapcraft.io/api/v1/snaps/download/WkTBXwoX81rBe3s3OTt3EiiLKBx2QhuS_242.snap
-        sha256: 41ca6be797fa9aa0cd5126bf71553da63b7511b124503b0644b9725a72b6f7f3
-        size: 144715776
+        url: https://api.snapcraft.io/api/v1/snaps/download/WkTBXwoX81rBe3s3OTt3EiiLKBx2QhuS_243.snap
+        sha256: 3cd82720a1e7d1e5e2e1f9424c7a818b99601f62a901abbd6d25a47d25afefa4
+        size: 144703488
         x-checker-data:
           type: snapcraft
           name: termius-app
