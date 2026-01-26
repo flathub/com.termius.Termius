@@ -1,9 +1,9 @@
 id: com.termius.Termius
 runtime: org.freedesktop.Platform
-runtime-version: '24.08'
+runtime-version: '25.08'
 sdk: org.freedesktop.Sdk
 base: org.electronjs.Electron2.BaseApp
-base-version: '24.08'
+base-version: '25.08'
 command: termius
 separate-locales: false
 
@@ -16,7 +16,6 @@ finish-args:
   - --socket=ssh-auth
 
 modules:
-  - shared-modules/lzo/lzo.json
   - shared-modules/squashfs-tools/squashfs-tools.json
 
   - name: fontconfig
