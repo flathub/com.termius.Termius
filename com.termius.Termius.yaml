@@ -14,10 +14,14 @@ finish-args:
   - --socket=pulseaudio
   - --device=all
   - --socket=ssh-auth
+  - --filesystem=host
+  - --filesystem=host-root
+  - --talk-name=org.freedesktop.Flatpak
+  - --talk-name=org.freedesktop.portal.Notification
+  - --talk-name=org.freedesktop.portal.Secret
+  - --env=TERMIUS_OFFICIAL_FLATPAK=1
 
 modules:
-  - shared-modules/squashfs-tools/squashfs-tools.json
-
   - name: fontconfig
     buildsystem: simple
     build-commands:
@@ -30,6 +34,22 @@ modules:
         url: https://gitlab.archlinux.org/archlinux/packaging/packages/noto-fonts-cjk/-/raw/5fd3534bf7a6e26c7506dc8f40dcd89f37d35627/70-noto-cjk.conf
         sha256: 2417ac0e6720fe8da55ee59f16e36cfe96737bc21432460a322bb0f395e3a521
 
+  - name: host-spawn
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 host-spawn $FLATPAK_DEST/bin/host-spawn
+    sources:
+      - type: file
+        url: https://github.com/1player/host-spawn/releases/download/v1.6.2/host-spawn-x86_64
+        sha256: 077bc09a087292447ba17cfe2156a93f71bf56c4c6be8e38d3abe65c1240f34c
+        dest-filename: host-spawn
+        only-arches: [x86_64]
+      - type: file
+        url: https://github.com/1player/host-spawn/releases/download/v1.6.2/host-spawn-aarch64
+        sha256: 8b30215b0b6b66c8c34a3e22d372dd39020295cd0904608bc2c5f5ecff829e5f
+        dest-filename: host-spawn
+        only-arches: [aarch64]
+
   - name: termius
     buildsystem: simple
     build-commands:
@@ -37,7 +57,7 @@ modules:
       - install -Dm644 $FLATPAK_ID.png -t $FLATPAK_DEST/share/icons/hicolor/512x512/apps
       - install -Dm644 $FLATPAK_ID.desktop -t $FLATPAK_DEST/share/applications
       - install -Dm755 termius.sh $FLATPAK_DEST/bin/termius
-      - install -Dm755 apply_extra.sh $FLATPAK_DEST/bin/apply_extra
+      - cp -a . $FLATPAK_DEST/termius
     sources:
       - type: file
         path: com.termius.Termius.metainfo.xml
@@ -48,20 +68,28 @@ modules:
       - type: script
         dest-filename: termius.sh
         commands:
-          - exec zypak-wrapper.sh /app/extra/termius/termius-app "$@"
-      - type: script
-        dest-filename: apply_extra.sh
-        commands:
-          - unsquashfs -quiet -no-progress termius.snap
-          - mv squashfs-root termius
-          - rm termius.snap
-      - type: extra-data
-        filename: termius.snap
+          - exec zypak-wrapper.sh "/app/termius/termius-app" --ozone-platform=x11
+            "$@"
+      - type: archive
+        url: https://autoupdate.termius.com/linux-tar/Termius-9.43.1-x64.tar.gz
+        sha512: 4abcfadff84c01486539f5b92cbe671a9357337dc6bfbbb33d526ae70bbf8224ab6b1396d4993d2d638e18bb10d5c952e972d24a9f8e05093ebc2b8708c701b7
+        strip-components: 1
         only-arches: [x86_64]
-        url: https://api.snapcraft.io/api/v1/snaps/download/WkTBXwoX81rBe3s3OTt3EiiLKBx2QhuS_262.snap
-        sha256: 1ed6b5aefc403fd1911495d2c36550bc4a60735d475a3e217362aef5600efa68
-        size: 146526208
         x-checker-data:
-          type: snapcraft
-          name: termius-app
-          channel: stable
+          type: json
+          url: https://autoupdate.termius.com/linux-tar/flatpak-checker-data.json
+          version-query: .version
+          url-query: .url
+          release-url-template: https://docs.termius.com/changelog#id-$version
+          is-main-source: true
+      - type: archive
+        url: https://autoupdate.termius.com/linux-tar-arm64/Termius-9.43.1-arm64.tar.gz
+        sha512: 17bd04aad7b4299eaa6b5db5135baea64c4e7f6d37f0d5e34f9b55117e1b6dd7a099d2b4212e1af94aef6654569cacddacd7bf65bcc72c4339f58488d1cf3aae
+        strip-components: 1
+        only-arches: [aarch64]
+        x-checker-data:
+          type: json
+          url: https://autoupdate.termius.com/linux-tar-arm64/flatpak-checker-data.json
+          version-query: .version
+          url-query: .url
+          release-url-template: https://docs.termius.com/changelog#id-$version
